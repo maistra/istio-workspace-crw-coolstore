@@ -35,4 +35,4 @@ commands:
       commandLine: 'echo "------ START ------"; pkill ike; ike develop -d inventory-v1 -p 8080 -r ''./mvnw compile quarkus:dev'' --route header:ike-session-id=live_debug; echo "------ END ------";'
       component: istio-workspace
       label: Inventory - Route Traffic to Local
-      workingDir: /projects/debugging-workshop/inventory-quarkus
+      workingDir: /projects/istio-workspace-crw-coolstore/inventory-quarkus
