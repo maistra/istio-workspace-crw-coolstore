@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: tekton-demo-lab-repo
+spec:
+  params:
+    - name: url
+      value: https://github.com/bartoszmajsak/debugging-workshop.git
+    - name: revision
+      value: ike_demo
+  type: git

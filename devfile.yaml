@@ -1,0 +1,38 @@
+schemaVersion: 2.1.0
+metadata:
+  name: ike-demo
+components:
+  - name: java-tooling
+    container:
+      image: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8 
+      env:
+        - name: QUARKUS_HTTP_HOST
+          value: 0.0.0.0
+      endpoints:
+        - exposure: none
+          name: debug
+          protocol: tcp
+          targetPort: 5005        
+      volumeMounts:
+        - name: m2
+          path: /home/jboss/.m2
+      memoryLimit: 4G
+      mountSources: true
+  - name: m2
+    volume:
+      size: 2G
+  - name: istio-workspace
+    container:
+      image: 'quay.io/aslakknutsen/workshop-tools:latest'
+      memoryLimit: 2G 
+      sourceMapping: /projects   
+      volumeMounts:
+        - name: m2
+          path: /home/developer/.m2 
+commands:
+  - id: istio-workspace-dev-inventory
+    exec:
+      commandLine: 'echo "------ START ------"; pkill ike; ike develop -d inventory-v1 -p 8080 -r ''./mvnw compile quarkus:dev'' --route header:ike-session-id=live_debug; echo "------ END ------";'
+      component: istio-workspace
+      label: Inventory - Route Traffic to Local
+      workingDir: /projects/debugging-workshop/inventory-quarkus
