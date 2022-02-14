@@ -1,0 +1,340 @@
+   0.0 TEL | Telepresence 0.109 launched at Mon Feb 14 10:31:25 2022
+   0.0 TEL |   /usr/local/bin/telepresence --deployment inventory-v1-3bfc2695-user-user-tmccj --method inject-tcp --expose 8080 --run /usr/local/bin/ike execute --run './mvnw compile quarkus:dev' --no-build false
+   0.0 TEL |   TELEPRESENCE_VERSION is 0.109
+   0.0 TEL | uname: uname_result(system='Linux', node='workspacef724763b9970433d-75bc98d7c8-hv6f6', release='4.18.0-305.19.1.el8_4.x86_64', version='#1 SMP Tue Sep 7 07:07:31 EDT 2021', machine='x86_64', processor='x86_64')
+   0.0 TEL | Platform: linux
+   0.0 TEL | WSL: False
+   0.0 TEL | Python 3.6.8 (default, Sep  9 2021, 07:49:02)
+   0.0 TEL | [GCC 8.5.0 20210514 (Red Hat 8.5.0-3)]
+   0.0 TEL | BEGIN SPAN main.py:40(main)
+   0.0 TEL | BEGIN SPAN startup.py:83(set_kube_command)
+   0.0 TEL | Found kubectl -> /usr/local/bin/kubectl
+   0.0 TEL | Found oc -> /usr/local/bin/oc
+   0.0 TEL | [1] Capturing: kubectl config current-context
+   0.2 TEL | [1] captured in 0.18 secs.
+   0.2 TEL | [2] Capturing: kubectl --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr version --short
+   0.5 TEL | [2] captured in 0.28 secs.
+   0.5 TEL | [3] Capturing: kubectl --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr config view -o json
+   0.7 TEL | [3] captured in 0.20 secs.
+   0.7 TEL | [4] Capturing: kubectl --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr api-versions
+   0.9 TEL | [4] captured in 0.22 secs.
+   0.9 TEL | Command: oc 1.20.6
+   0.9 TEL | Context: opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr, namespace: opentlc-mgr-codeready, version: 1.22.0-rc.0+894a78b
+   0.9 TEL | [5] Capturing: minishift ip
+   0.9 TEL | [5] [Errno 2] No such file or directory: 'minishift': 'minishift'
+   0.9 TEL | Warning: kubectl 1.20.6 may not work correctly with cluster version 1.22.0-rc.0+894a78b due to the version discrepancy. See https://kubernetes.io/docs/setup/version-skew-policy/ for more information.
+   0.9 TEL | END SPAN startup.py:83(set_kube_command)    0.9s
+   0.9 >>> | Using a Pod instead of a Deployment for the Telepresence proxy. If you experience problems, please file an issue!
+   0.9 >>> | Set the environment variable TELEPRESENCE_USE_DEPLOYMENT to any non-empty value to force the old behavior, e.g.,
+   0.9 >>> |     env TELEPRESENCE_USE_DEPLOYMENT=1 telepresence --run curl hello
+   0.9 >>> | 
+   0.9 TEL | [6] Capturing: oc --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr --namespace opentlc-mgr-codeready get dc inventory-v1-3bfc2695-user-user-tmccj -o json
+   1.3   6 | {
+   1.3   6 |     "apiVersion": "apps.openshift.io/v1",
+   1.3   6 |     "kind": "DeploymentConfig",
+   1.3   6 |     "metadata": {
+   1.3   6 |         "annotations": {
+   1.3   6 |             "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps.openshift.io/v1\",\"kind\":\"DeploymentConfig\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"inventory\",\"app.kubernetes.io/instance\":\"coolstore\",\"app.kubernetes.io/name\":\"java\",\"app.kubernetes.io/part-of\":\"inventory\",\"version\":\"v1\"},\"name\":\"inventory-v1\",\"namespace\":\"opentlc-mgr-codeready\"},\"spec\":{\"replicas\":1,\"revisionHistoryLimit\":2,\"selector\":{\"app\":\"inventory\",\"app.kubernetes.io/instance\":\"inventory\",\"version\":\"v1\"},\"strategy\":{\"activeDeadlineSeconds\":21600,\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"2Gi\"},\"requests\":{\"cpu\":\"500m\",\"memory\":\"1Gi\"}},\"rollingParams\":{\"intervalSeconds\":1,\"maxSurge\":\"25%\",\"maxUnavailable\":\"25%\",\"timeoutSeconds\":3600,\"updatePeriodSeconds\":1},\"type\":\"Rolling\"},\"template\":{\"metadata\":{\"annotations\":{\"sidecar.istio.io/inject\":\"true\"},\"labels\":{\"app\":\"inventory\",\"app.kubernetes.io/instance\":\"inventory\",\"version\":\"v1\"}},\"spec\":{\"containers\":[{\"args\":[\"-c\",\"until $(curl -o /dev/null -s -I -f http://127.0.0.1:15000); do echo \\\\\\\"Waiting for Istio Sidecar...\\\\\\\"; sleep 1; done; sleep 10; /deployments/run-java.sh -Dquarkus.http.host=0.0.0.0\"],\"command\":[\"/bin/bash\"],\"env\":[{\"name\":\"KUBERNETES_NAMESPACE\",\"valueFrom\":{\"fieldRef\":{\"apiVersion\":\"v1\",\"fieldPath\":\"metadata.namespace\"}}}],\"image\":\"quay.io/aslakknutsen/workshop-inventory:v1\",\"imagePullPolicy\":\"Always\",\"livenessProbe\":{\"exec\":{\"command\":[\"curl\",\"-f\",\"http://127.0.0.1:8080/q/health/live\"]},\"failureThreshold\":3,\"initialDelaySeconds\":30,\"periodSeconds\":10,\"successThreshold\":1,\"timeoutSeconds\":1},\"name\":\"inventory\",\"ports\":[{\"containerPort\":8080,\"name\":\"http\",\"protocol\":\"TCP\"},{\"containerPort\":9779,\"name\":\"prometheus\",\"protocol\":\"TCP\"},{\"containerPort\":8778,\"name\":\"jolokia\",\"protocol\":\"TCP\"}],\"readinessProbe\":{\"exec\":{\"command\":[\"curl\",\"-f\",\"http://127.0.0.1:8080/q/health/ready\"]},\"failureThreshold\":3,\"initialDelaySeconds\":30,\"periodSeconds\":10,\"successThreshold\":1,\"timeoutSeconds\":1},\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"2Gi\"},\"requests\":{\"cpu\":\"500m\",\"memory\":\"1Gi\"}},\"securityContext\":{\"privileged\":false},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"volumeMounts\":[{\"mountPath\":\"/work/config\",\"name\":\"volume-app-config\"}]}],\"dnsPolicy\":\"ClusterFirst\",\"restartPolicy\":\"Always\",\"schedulerName\":\"default-scheduler\",\"securityContext\":{},\"terminationGracePeriodSeconds\":30,\"volumes\":[{\"configMap\":{\"defaultMode\":420,\"name\":\"inventory\"},\"name\":\"volume-app-config\"}]}}}}\n",
+   1.3   6 |             "maistra.io/istio-workspaces": "opentlc-mgr-codeready/user-user-tmccj"
+   1.3   6 |         },
+   1.3   6 |         "creationTimestamp": "2022-02-14T10:31:22Z",
+   1.3   6 |         "generation": 1,
+   1.3   6 |         "labels": {
+   1.3   6 |             "app": "inventory",
+   1.3   6 |             "app.kubernetes.io/instance": "coolstore",
+   1.3   6 |             "app.kubernetes.io/name": "java",
+   1.3   6 |             "app.kubernetes.io/part-of": "inventory",
+   1.3   6 |             "maistra.io.user-user-tmccj-inventory-v1-X": "create-5871d320",
+   1.3   6 |             "version": "3bfc2695-user-user-tmccj"
+   1.3   6 |         },
+   1.3   6 |         "name": "inventory-v1-3bfc2695-user-user-tmccj",
+   1.3   6 |         "namespace": "opentlc-mgr-codeready",
+   1.3   6 |         "resourceVersion": "8135340",
+   1.3   6 |         "uid": "0ee82653-a898-479c-a2b9-11695751b2a5"
+   1.3   6 |     },
+   1.3   6 |     "spec": {
+   1.3   6 |         "replicas": 1,
+   1.3   6 |         "revisionHistoryLimit": 2,
+   1.3   6 |         "selector": {
+   1.3   6 |             "app": "inventory",
+   1.3   6 |             "app.kubernetes.io/instance": "inventory",
+   1.3   6 |             "version": "3bfc2695-user-user-tmccj"
+   1.3   6 |         },
+   1.3   6 |         "strategy": {
+   1.3   6 |             "activeDeadlineSeconds": 21600,
+   1.3   6 |             "resources": {
+   1.3   6 |                 "limits": {
+   1.3   6 |                     "cpu": "500m",
+   1.3   6 |                     "memory": "2Gi"
+   1.3   6 |                 },
+   1.3   6 |                 "requests": {
+   1.3   6 |                     "cpu": "500m",
+   1.3   6 |                     "memory": "1Gi"
+   1.3   6 |                 }
+   1.3   6 |             },
+   1.3   6 |             "rollingParams": {
+   1.3   6 |                 "intervalSeconds": 1,
+   1.3   6 |                 "maxSurge": "25%",
+   1.3   6 |                 "maxUnavailable": "25%",
+   1.3   6 |                 "timeoutSeconds": 3600,
+   1.3   6 |                 "updatePeriodSeconds": 1
+   1.3   6 |             },
+   1.3   6 |             "type": "Rolling"
+   1.3   6 |         },
+   1.3   6 |         "template": {
+   1.3   6 |             "metadata": {
+   1.3   6 |                 "annotations": {
+   1.3   6 |                     "sidecar.istio.io/inject": "true"
+   1.3   6 |                 },
+   1.3   6 |                 "creationTimestamp": null,
+   1.3   6 |                 "labels": {
+   1.3   6 |                     "app": "inventory",
+   1.3   6 |                     "app.kubernetes.io/instance": "inventory",
+   1.3   6 |                     "telepresence": "test",
+   1.3   6 |                     "version": "3bfc2695-user-user-tmccj",
+   1.3   6 |                     "version-source": "v1"
+   1.3   6 |                 }
+   1.3   6 |             },
+   1.3   6 |             "spec": {
+   1.3   6 |                 "containers": [
+   1.3   6 |                     {
+   1.3   6 |                         "env": [
+   1.3   6 |                             {
+   1.3   6 |                                 "name": "KUBERNETES_NAMESPACE",
+   1.3   6 |                                 "valueFrom": {
+   1.3   6 |                                     "fieldRef": {
+   1.3   6 |                                         "apiVersion": "v1",
+   1.3   6 |                                         "fieldPath": "metadata.namespace"
+   1.3   6 |                                     }
+   1.3   6 |                                 }
+   1.3   6 |                             },
+   1.3   6 |                             {
+   1.3   6 |                                 "name": "TELEPRESENCE_CONTAINER_NAMESPACE",
+   1.3   6 |                                 "valueFrom": {
+   1.3   6 |                                     "fieldRef": {
+   1.3   6 |                                         "apiVersion": "v1",
+   1.3   6 |                                         "fieldPath": "metadata.namespace"
+   1.3   6 |                                     }
+   1.3   6 |                                 }
+   1.3   6 |                             }
+   1.3   6 |                         ],
+   1.3   6 |                         "image": "datawire/telepresence-k8s:0.109",
+   1.3   6 |                         "imagePullPolicy": "Always",
+   1.3   6 |                         "name": "inventory",
+   1.3   6 |                         "ports": [
+   1.3   6 |                             {
+   1.3   6 |                                 "containerPort": 8080,
+   1.3   6 |                                 "name": "http",
+   1.3   6 |                                 "protocol": "TCP"
+   1.3   6 |                             },
+   1.3   6 |                             {
+   1.3   6 |                                 "containerPort": 9779,
+   1.3   6 |                                 "name": "prometheus",
+   1.3   6 |                                 "protocol": "TCP"
+   1.3   6 |                             },
+   1.3   6 |                             {
+   1.3   6 |                                 "containerPort": 8778,
+   1.3   6 |                                 "name": "jolokia",
+   1.3   6 |                                 "protocol": "TCP"
+   1.3   6 |                             }
+   1.3   6 |                         ],
+   1.3   6 |                         "resources": {
+   1.3   6 |                             "limits": {
+   1.3   6 |                                 "cpu": "500m",
+   1.3   6 |                                 "memory": "2Gi"
+   1.3   6 |                             },
+   1.3   6 |                             "requests": {
+   1.3   6 |                                 "cpu": "500m",
+   1.3   6 |                                 "memory": "1Gi"
+   1.3   6 |                             }
+   1.3   6 |                         },
+   1.3   6 |                         "securityContext": {
+   1.3   6 |                             "privileged": false
+   1.3   6 |                         },
+   1.3   6 |                         "terminationMessagePath": "/dev/termination-log",
+   1.3   6 |                         "terminationMessagePolicy": "File",
+   1.3   6 |                         "volumeMounts": [
+   1.3   6 |                             {
+   1.3   6 |                                 "mountPath": "/work/config",
+   1.3   6 |                                 "name": "volume-app-config"
+   1.3   6 |                             }
+   1.3   6 |                         ]
+   1.3   6 |                     }
+   1.3   6 |                 ],
+   1.3   6 |                 "dnsPolicy": "ClusterFirst",
+   1.3   6 |                 "restartPolicy": "Always",
+   1.3   6 |                 "schedulerName": "default-scheduler",
+   1.3   6 |                 "securityContext": {},
+   1.3   6 |                 "terminationGracePeriodSeconds": 30,
+   1.3   6 |                 "volumes": [
+   1.3   6 |                     {
+   1.3   6 |                         "configMap": {
+   1.3   6 |                             "defaultMode": 420,
+   1.3   6 |                             "name": "inventory"
+   1.3   6 |                         },
+   1.3   6 |                         "name": "volume-app-config"
+   1.3   6 |                     }
+   1.3   6 |                 ]
+   1.3   6 |             }
+   1.3   6 |         },
+   1.3   6 |         "test": false,
+   1.3   6 |         "triggers": [
+   1.3   6 |             {
+   1.3   6 |                 "type": "ConfigChange"
+   1.3   6 |             }
+   1.3   6 |         ]
+   1.3   6 |     },
+   1.3   6 |     "status": {
+   1.3   6 |         "availableReplicas": 0,
+   1.3   6 |         "conditions": [
+   1.3   6 |             {
+   1.3   6 |                 "lastTransitionTime": "2022-02-14T10:31:22Z",
+   1.3   6 |                 "lastUpdateTime": "2022-02-14T10:31:22Z",
+   1.3   6 |                 "message": "Deployment config does not have minimum availability.",
+   1.3   6 |                 "status": "False",
+   1.3   6 |                 "type": "Available"
+   1.3   6 |             },
+   1.3   6 |             {
+   1.3   6 |                 "lastTransitionTime": "2022-02-14T10:31:22Z",
+   1.3   6 |                 "lastUpdateTime": "2022-02-14T10:31:22Z",
+   1.3   6 |                 "message": "replication controller \"inventory-v1-3bfc2695-user-user-tmccj-1\" is waiting for pod \"inventory-v1-3bfc2695-user-user-tmccj-1-deploy\" to run",
+   1.3   6 |                 "status": "Unknown",
+   1.3   6 |                 "type": "Progressing"
+   1.3   6 |             }
+   1.3   6 |         ],
+   1.3   6 |         "details": {
+   1.3   6 |             "causes": [
+   1.3   6 |                 {
+   1.3   6 |                     "type": "ConfigChange"
+   1.3   6 |                 }
+   1.3   6 |             ],
+   1.3   6 |             "message": "config change"
+   1.3   6 |         },
+   1.3   6 |         "latestVersion": 1,
+   1.3   6 |         "observedGeneration": 1,
+   1.3   6 |         "replicas": 1,
+   1.3   6 |         "unavailableReplicas": 1,
+   1.3   6 |         "updatedReplicas": 1
+   1.3   6 |     }
+   1.3   6 | }
+   1.3 TEL | [6] captured in 0.42 secs.
+   1.3 TEL | BEGIN SPAN remote.py:229(get_pod_for_deployment)
+   1.3 TEL | Searching for Telepresence pod:
+   1.3 TEL |   with name inventory-v1-3bfc2695-user-user-tmccj-*
+   1.3 TEL |   with labels {'app': 'inventory', 'app.kubernetes.io/instance': 'inventory', 'telepresence': 'test', 'version': '3bfc2695-user-user-tmccj', 'version-source': 'v1'}
+   1.3 TEL | [7] Capturing: oc --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr --namespace opentlc-mgr-codeready get pod -o json -l=app=inventory -l=app.kubernetes.io/instance=inventory -l=telepresence=test -l=version=3bfc2695-user-user-tmccj -l=version-source=v1
+   1.8 TEL | [7] captured in 0.50 secs.
+   1.8 TEL | Checking inventory-v1-3bfc2695-user-user-ctgtx-1-cr726
+   1.8 TEL | --> Name does not match
+   1.8 TEL | Checking inventory-v1-3bfc2695-user-user-tmccj-1-z8b7n
+   1.8 TEL | Looks like we've found our pod!
+   1.8 TEL | END SPAN remote.py:229(get_pod_for_deployment)    0.5s
+   1.8 TEL | Found ssh -> /usr/bin/ssh
+   1.8 TEL | [8] Capturing: ssh -V
+   1.9 TEL | [8] captured in 0.05 secs.
+   1.9 TEL | Found /usr/local/bin/ike -> /usr/local/bin/ike
+   1.9 TEL | Found torsocks -> /usr/bin/torsocks
+   1.9 TEL | Found sshfs -> /usr/bin/sshfs
+   1.9 TEL | Found fusermount -> /usr/bin/fusermount
+   1.9 TEL | [9] Running: oc --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr --namespace opentlc-mgr-codeready get pods telepresence-connectivity-check --ignore-not-found
+   2.3 TEL | [9] ran in 0.43 secs.
+   2.8 TEL | Scout info: {'latest_version': '0.109', 'application': 'telepresence', 'notices': []}
+   2.8 >>> | Starting network proxy to cluster using the existing proxy DeploymentConfig inventory-v1-3bfc2695-user-user-tmccj
+   2.8 TEL | BEGIN SPAN remote.py:109(wait_for_pod)
+   2.8 TEL | [10] Running: oc --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr --namespace opentlc-mgr-codeready wait --for=condition=ready --timeout=60s pod/inventory-v1-3bfc2695-user-user-tmccj-1-z8b7n
+   7.1  10 | pod/inventory-v1-3bfc2695-user-user-tmccj-1-z8b7n condition met
+   7.1 TEL | [10] ran in 4.36 secs.
+   7.1 TEL | [11] Capturing: oc --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr --namespace opentlc-mgr-codeready get pod inventory-v1-3bfc2695-user-user-tmccj-1-z8b7n -o json
+   7.5 TEL | [11] captured in 0.36 secs.
+   7.5 TEL | END SPAN remote.py:109(wait_for_pod)    4.7s
+   7.5 TEL | BEGIN SPAN connect.py:37(connect)
+   7.5 TEL | [12] Launching kubectl logs: oc --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr --namespace opentlc-mgr-codeready logs -f inventory-v1-3bfc2695-user-user-tmccj-1-z8b7n --container inventory --tail=10
+   7.5 TEL | [13] Launching kubectl port-forward: oc --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr --namespace opentlc-mgr-codeready port-forward inventory-v1-3bfc2695-user-user-tmccj-1-z8b7n 45205:8022
+   7.5 TEL | [14] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oConnectTimeout=5 -q -p 45205 telepresence@127.0.0.1 /bin/true
+   7.5 TEL | [14] exit 255 in 0.01 secs.
+   7.8 TEL | [15] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oConnectTimeout=5 -q -p 45205 telepresence@127.0.0.1 /bin/true
+   7.8 TEL | [15] exit 255 in 0.01 secs.
+   8.1 TEL | [16] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oConnectTimeout=5 -q -p 45205 telepresence@127.0.0.1 /bin/true
+   8.1 TEL | [16] exit 255 in 0.01 secs.
+   8.3  12 | 2022-02-14T10:31:31+0000 [-] Loading ./forwarder.py...
+   8.3  12 | 2022-02-14T10:31:31+0000 [-] /etc/resolv.conf changed, reparsing
+   8.3  12 | 2022-02-14T10:31:31+0000 [-] Resolver added ('172.30.0.10', 53) to server list
+   8.3  12 | 2022-02-14T10:31:31+0000 [-] SOCKSv5Factory starting on 9050
+   8.3  12 | 2022-02-14T10:31:31+0000 [socks.SOCKSv5Factory#info] Starting factory <socks.SOCKSv5Factory object at 0x7f95ec5f1278>
+   8.3  12 | 2022-02-14T10:31:31+0000 [-] DNSDatagramProtocol starting on 9053
+   8.3  12 | 2022-02-14T10:31:31+0000 [-] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f95ec5f1518>
+   8.3  12 | 2022-02-14T10:31:31+0000 [-] Loaded.
+   8.3  12 | 2022-02-14T10:31:31+0000 [twisted.scripts._twistd_unix.UnixAppLogger#info] twistd 20.3.0 (/usr/bin/python3.6 3.6.8) starting up.
+   8.3  12 | 2022-02-14T10:31:31+0000 [twisted.scripts._twistd_unix.UnixAppLogger#info] reactor class: twisted.internet.epollreactor.EPollReactor.
+   8.3 TEL | [17] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oConnectTimeout=5 -q -p 45205 telepresence@127.0.0.1 /bin/true
+   8.4 TEL | [17] exit 255 in 0.05 secs.
+   8.5  13 | Forwarding from 127.0.0.1:45205 -> 8022
+   8.5  13 | Forwarding from [::1]:45205 -> 8022
+   8.7 TEL | [18] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oConnectTimeout=5 -q -p 45205 telepresence@127.0.0.1 /bin/true
+   8.7  13 | Handling connection for 45205
+   8.8 TEL | [18] ran in 0.17 secs.
+   8.8 TEL | [19] Launching SSH port forward (exposed ports): ssh -N -oServerAliveInterval=1 -oServerAliveCountMax=10 -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oConnectTimeout=5 -q -p 45205 telepresence@127.0.0.1 -R '*:8080:127.0.0.1:8080' -R '*:9779:127.0.0.1:9779' -R '*:8778:127.0.0.1:8778'
+   8.8 TEL | Launching Web server for proxy poll
+   8.8 TEL | [20] Launching SSH port forward (socks and proxy poll): ssh -N -oServerAliveInterval=1 -oServerAliveCountMax=10 -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oConnectTimeout=5 -q -p 45205 telepresence@127.0.0.1 -L127.0.0.1:40635:127.0.0.1:9050 -R9055:127.0.0.1:44587
+   8.8  13 | Handling connection for 45205
+   8.8 TEL | END SPAN connect.py:37(connect)    1.4s
+   8.8 TEL | BEGIN SPAN remote_env.py:29(get_remote_env)
+   8.8 TEL | [21] Capturing: oc --context opentlc-mgr-codeready/api-cluster-qqgjd-qqgjd-sandbox474-opentlc-com:6443/opentlc-mgr --namespace opentlc-mgr-codeready exec inventory-v1-3bfc2695-user-user-tmccj-1-z8b7n --container inventory -- python3 podinfo.py
+   8.9  13 | Handling connection for 45205
+   9.5 TEL | [21] captured in 0.64 secs.
+   9.5 TEL | END SPAN remote_env.py:29(get_remote_env)    0.6s
+   9.5 TEL | BEGIN SPAN mount.py:30(mount_remote_volumes)
+   9.5 TEL | [22] Running: sshfs -p 45205 -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oConnectTimeout=5 telepresence@127.0.0.1:/ /tmp/tel-tczj4lyy/fs
+   9.5  22 | fuse: device not found, try 'modprobe fuse' first
+   9.5 TEL | [22] exit 1 in 0.00 secs.
+   9.5 >>> | Mounting remote volumes failed, they will be unavailable in this session. If you are running on Windows Subystem for Linux then see https://github.com/datawire/telepresence/issues/115, otherwise please report a bug, attaching telepresence.log to the bug report: https://github.com/datawire/telepresence/issues/new
+   9.5 TEL | END SPAN mount.py:30(mount_remote_volumes)    0.0s
+   9.5 TEL | BEGIN SPAN local.py:42(set_up_torsocks)
+   9.5 TEL | [23] Running: torsocks python3 -c 'import socket; socket.socket().connect(('"'"'kubernetes.default'"'"', 443))'
+   9.6 TEL | [23] ran in 0.11 secs.
+   9.6 TEL | END SPAN local.py:42(set_up_torsocks)    0.1s
+   9.6 >>> | Setup complete. Launching your command.
+   9.6 TEL | Everything launched. Waiting to exit...
+   9.6 TEL | BEGIN SPAN runner.py:754(wait_for_exit)
+1644834694 WARNING torsocks[1646]: [syscall] Unsupported syscall number 229. Denying the call (in tsocks_syscall() at syscall.c:568)
+  36.5 TEL | (proxy checking local liveness)
+  36.5  12 | 2022-02-14T10:32:01+0000 [Poll#info] Checkpoint
+1644834728 WARNING torsocks[1680]: [syscall] Unsupported syscall number 229. Denying the call (in tsocks_syscall() at syscall.c:568)
+1644834740 ERROR torsocks[1680]: Unable to resolve. Status reply: 4 (in socks5_recv_resolve_reply() at socks5.c:677)
+  55.3  12 | 2022-02-14T10:32:20+0000 [-] Unhandled Error
+  55.3  12 | 	Traceback (most recent call last):
+  55.3  12 | 	Failure: twisted.internet.error.DNSLookupError: DNS lookup failed: workspacef724763b9970433d-75bc98d7c8-hv6f6.
+  55.3  12 | 
+1644834742 ERROR torsocks[1680]: Unable to resolve. Status reply: 4 (in socks5_recv_resolve_reply() at socks5.c:677)
+  57.9  12 | 2022-02-14T10:32:22+0000 [-] Unhandled Error
+  57.9  12 | 	Traceback (most recent call last):
+  57.9  12 | 	Failure: twisted.internet.error.DNSLookupError: DNS lookup failed: workspacef724763b9970433d-75bc98d7c8-hv6f6.
+  57.9  12 | 
+  66.4 TEL | (proxy checking local liveness)
+  66.4  12 | 2022-02-14T10:32:31+0000 [Poll#info] Checkpoint
+  96.4 TEL | (proxy checking local liveness)
+  96.4  12 | 2022-02-14T10:33:01+0000 [Poll#info] Checkpoint
+ 126.4 TEL | (proxy checking local liveness)
+ 126.4  12 | 2022-02-14T10:33:31+0000 [Poll#info] Checkpoint
+ 156.4 TEL | (proxy checking local liveness)
+ 156.4  12 | 2022-02-14T10:34:01+0000 [Poll#info] Checkpoint
+ 186.4 TEL | (proxy checking local liveness)
+ 186.4  12 | 2022-02-14T10:34:31+0000 [Poll#info] Checkpoint
+ 216.4 TEL | (proxy checking local liveness)
+ 216.4  12 | 2022-02-14T10:35:01+0000 [Poll#info] Checkpoint
+ 246.4 TEL | (proxy checking local liveness)
+ 246.4  12 | 2022-02-14T10:35:31+0000 [Poll#info] Checkpoint
+ 276.4 TEL | (proxy checking local liveness)
+ 276.4  12 | 2022-02-14T10:36:01+0000 [Poll#info] Checkpoint
+ 306.4 TEL | (proxy checking local liveness)
+ 306.4  12 | 2022-02-14T10:36:31+0000 [Poll#info] Checkpoint
+ 336.4 TEL | (proxy checking local liveness)
+ 336.4  12 | 2022-02-14T10:37:01+0000 [Poll#info] Checkpoint
+ 366.5 TEL | (proxy checking local liveness)
+ 366.5  12 | 2022-02-14T10:37:31+0000 [Poll#info] Checkpoint
+ 396.4 TEL | (proxy checking local liveness)
+ 396.4  12 | 2022-02-14T10:38:01+0000 [Poll#info] Checkpoint
+ 426.4 TEL | (proxy checking local liveness)
+ 426.4  12 | 2022-02-14T10:38:31+0000 [Poll#info] Checkpoint
+ 456.4 TEL | (proxy checking local liveness)
+ 456.4  12 | 2022-02-14T10:39:01+0000 [Poll#info] Checkpoint
