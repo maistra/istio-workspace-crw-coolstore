@@ -192,28 +192,90 @@ spec:
           value: inventory-v1
         - name: namespace
           value: opentlc-mgr-codeready
-    - name: remove-preference
-      taskRef:
-        name: ike-delete
-        kind: Task
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: deploy-app
+spec:
+  params:
+    - name: git-revision # for some reason $(resources.git-repo.revision) does not work as a param to a task
+      type: string
+      description: the revision to update status on
+    - name: git-repo-name
+      type: string
+      description: the name of the repo
+    - name: git-repo-full-name
+      type: string
+      description: the name of the repo org/name
+    - name: git-pr-url
+      type: string
+      description: the name of the repo org/name
+    - name: git-pr-base-sha
+      type: string
+      description: the bsae sha for the pull request
+    - name: git-repo-url
+      type: string
+      description: the url to clone the repo
+    - name: git-pr-head-ref
+      type: string
+      description: the head branch ref
+  workspaces:
+    - name: source
+    - name: basic-auth
+  resources:
+    - name: git-repo
+      type: git
+  tasks:
+    - name: clone
+      taskRef: 
+        kind: ClusterTask
+        name: git-clone
       params:
-        - name: session
-          value: $(params.git-pr-head-ref)
-        - name: target
-          value: preference-v1
-        - name: namespace
-          value: opentlc-mgr-codeready
-    - name: remove-recommendation
+        - name: url
+          value: https://github.com/maistra/istio-workspace-crw-coolstore-deploy.git
+        - name: revision
+          value: main
+        - name: depth
+          value: "0"
+      workspaces:
+        - name: output
+          workspace: source
+    - name: update-image
       taskRef:
-        name: ike-delete
-        kind: Task
+        name: update-image-ref
+      workspaces:
+        - name: source
+          workspace: source
       params:
-        - name: session
-          value: $(params.git-pr-head-ref)
-        - name: target
-          value: recommendation-v1
-        - name: namespace
-          value: opentlc-mgr-codeready
+        - name: file
+          value: "gitops/inventory-deployment.yaml"
+        - name: image
+          value: image-registry.openshift-image-registry.svc:5000/opentlc-mgr-codeready/inventory:$(params.git-revision)
+      runAfter:
+        - clone
+    - name: push
+      taskRef:
+        name: git-cli
+      workspaces:
+        - name: source
+          workspace: source
+        - name: basic-auth
+          workspace: basic-auth
+      params:
+        - name: GIT_USER_NAME
+          value: alien-ike
+        - name: GIT_USER_EMAIL
+          value: arquillian-team@lists.jboss.org
+        - name: GIT_SCRIPT
+          value: |
+            git checkout main
+            git add .
+            git commit -v -m 'deploy: new inventory v $(params.git-revision)'
+            git push origin main
+      runAfter:
+        - update-image
 
 ---
 apiVersion: tekton.dev/v1beta1
@@ -229,3 +291,23 @@ spec:
       image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
       script: |
         #curl -D - $(params.url)
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: update-image-ref
+spec:
+  params:
+    - name: image
+      type: string
+    - name: file
+      type: string
+  workspaces:
+    - name: source
+  steps:
+    - name: execute
+      workingDir: $(workspaces.source.path)
+      image: docker.io/mikefarah/yq:4.16.2@sha256:0d4f6e27bdcac7316f635acd524ab0eecc4ad50834b54d10322268650c7712cb
+      script: |
+        echo yq eval -i ".spec.template.spec.containers[0].image=\"$(params.image)\"" "$(params.file)"
+        yq eval -i ".spec.template.spec.containers[0].image=\"$(params.image)\"" "$(params.file)"

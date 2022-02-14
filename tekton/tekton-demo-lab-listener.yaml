@@ -31,3 +31,15 @@ spec:
           kind: ClusterTriggerBinding
       template:
         ref: pull-request-close
+    - name: pull-request-merged
+      interceptors:
+        - github:
+            eventTypes: ["pull_request"]
+        - cel:
+            filter: "body.action in ['closed']"
+      bindings:
+        - ref: github-pr
+        - ref: github-pullreq
+          kind: ClusterTriggerBinding
+      template:
+        ref: pull-request-merged

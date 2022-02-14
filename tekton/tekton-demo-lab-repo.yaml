@@ -5,7 +5,7 @@ metadata:
 spec:
   params:
     - name: url
-      value: https://github.com/bartoszmajsak/debugging-workshop.git
+      value: https://github.com/maistra/istio-workspace-crw-coolstore.git
     - name: revision
-      value: ike_demo
+      value: main
   type: git
