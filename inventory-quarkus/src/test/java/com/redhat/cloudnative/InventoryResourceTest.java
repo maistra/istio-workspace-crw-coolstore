@@ -15,7 +15,7 @@ import static org.hamcrest.Matchers.is;
 public class InventoryResourceTest {
 
     @Test
-    public void testHelloEndpoint() {
+    public void should_return_quantity_from_inventory() {
         given()
             .pathParam("itemId", 329299)
         .when()
