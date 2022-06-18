@@ -6,6 +6,8 @@ import javax.persistence.Table;
 import javax.persistence.Column;
 import java.io.Serializable;
 
+// test
+
 @Entity
 @Table(name = "INVENTORY")
 public class Inventory implements Serializable {
