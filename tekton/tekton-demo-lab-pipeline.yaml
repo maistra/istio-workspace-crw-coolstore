@@ -140,7 +140,7 @@ spec:
       params:
         - name: REQUEST_URL
           value: $(params.git-pr-url)
-        - name: COMMENT
+        - name: COMMENT_OR_FILE
           value: |
             The changes are ready to be reviewed via [$(tasks.session-url.results.url)](http://$(tasks.session-url.results.url))
     - name: test
