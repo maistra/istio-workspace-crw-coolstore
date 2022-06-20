@@ -51,6 +51,8 @@ spec:
             persistentVolumeClaim:
               claimName: pipeline2
             subPath: $(uid)/
+          - name: maven-settings
+            emptyDir: {}
         resources:
           - name: git-repo
             resourceSpec:
