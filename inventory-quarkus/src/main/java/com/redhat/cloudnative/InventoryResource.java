@@ -21,10 +21,6 @@ public class InventoryResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Inventory getAvailability(@PathParam("itemId") String itemId) {
         Inventory inventory = em.find(Inventory.class, itemId);
-        if (inventory == null) {
-            inventory = new Inventory();
-            inventory.setQuantity(0);
-        }
         return inventory;
     }
 }
