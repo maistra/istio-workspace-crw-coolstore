@@ -14,9 +14,7 @@ bin/
 nb-configuration.xml
 
 # Visual Studio Code
-.vscode/*
-!.vscode/launch.json
-!.vscode/extensions.json
+**/.vscode/**
 
 # OSX
 .DS_Store
